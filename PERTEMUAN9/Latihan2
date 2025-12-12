@@ -1,0 +1,95 @@
+# RSA di mana p, q, dan e ditentukan oleh pengguna
+# Tampilkan debug perhitungan lengkap
+
+import math
+
+# --- Cek prima ---
+def is_prime(n):
+    if n <= 1:
+        return False
+    if n <= 3:
+        return True
+    if n % 2 == 0:
+        return False
+    r = int(math.isqrt(n))
+    for i in range(3, r+1, 2):
+        if n % i == 0:
+            return False
+    return True
+
+# --- Extended Euclid ---
+def egcd(a, b):
+    if b == 0:
+        return (a, 1, 0)
+    g, x1, y1 = egcd(b, a % b)
+    x = y1
+    y = x1 - (a // b) * y1
+    return (g, x, y)
+
+# --- Invers modular ---
+def modinv(e, phi):
+    g, x, y = egcd(e, phi)
+    if g != 1:
+        return None
+    return x % phi
+
+print("=== RSA (p, q, e ditentukan pengguna) ===")
+
+# Input p
+while True:
+    p = int(input("Masukkan p (bilangan prima): "))
+    if is_prime(p):
+        break
+    print("p bukan bilangan prima! Coba lagi.\n")
+
+# Input q
+while True:
+    q = int(input("Masukkan q (bilangan prima): "))
+    if is_prime(q):
+        if q != p:
+            break
+        else:
+            print("q tidak boleh sama dengan p!\n")
+    else:
+        print("q bukan bilangan prima! Coba lagi.\n")
+
+# Hitung n dan phi
+n = p * q
+phi = (p - 1) * (q - 1)
+
+print("\n=== Perhitungan RSA ===")
+print(f"p = {p}")
+print(f"q = {q}")
+print(f"n = p * q = {p} * {q} = {n}")
+print(f"phi(n) = (p-1)(q-1) = {p-1} * {q-1} = {phi}")
+
+# Input e
+while True:
+    e = int(input("\nMasukkan e (1 < e < phi dan gcd(e, phi)=1): "))
+    if 1 < e < phi and math.gcd(e, phi) == 1:
+        break
+    print("e tidak valid! e harus koprima dengan phi dan berada dalam rentang.")
+
+print(f"\ne yang dipilih = {e} (valid karena gcd({e}, {phi}) = {math.gcd(e, phi)})")
+
+# Hitung d
+d = modinv(e, phi)
+print(f"d (invers modular) = {d}")
+print(f"Verifikasi: (e * d) mod phi = ({e} * {d}) mod {phi} = {(e*d) % phi} (harus 1)\n")
+
+# Input plaintext
+plaintext = int(input("Masukkan plaintext (bilangan < n): "))
+if plaintext >= n:
+    print(f"Plaintext >= n, akan digunakan plaintext % n = {plaintext % n}")
+    plaintext = plaintext % n
+
+# Enkripsi
+cipher = pow(plaintext, e, n)
+print(f"\nCiphertext = plaintext^e mod n = {plaintext}^{e} mod {n} = {cipher}")
+
+# Dekripsi
+decrypted = pow(cipher, d, n)
+print(f"Dekripsi = ciphertext^d mod n = {cipher}^{d} mod {n} = {decrypted}")
+
+print("\n=== Selesai ===")
+print("Jika decrypted == plaintext, maka enkripsi-dekripsi berhasil!")

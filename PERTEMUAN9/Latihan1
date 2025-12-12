@@ -1,0 +1,41 @@
+# RSA Encryption - p=17, q=11, e=7
+
+# --- Langkah 1: Tetapkan nilai p, q, e ---
+p = 17
+q = 11
+e = 7
+
+# --- Langkah 2: Hitung n dan phi(n) ---
+n = p * q
+phi = (p - 1) * (q - 1)
+
+print("n =", n)
+print("phi(n) =", phi)
+
+# --- Langkah 3: Mencari d (kunci privat) ---
+# d adalah invers modulo dari e terhadap phi(n): d * e ≡ 1 (mod phi)
+
+def mod_inverse(e, phi):
+    for d in range(1, phi):
+        if (d * e) % phi == 1:
+            return d
+    return None
+
+d = mod_inverse(e, phi)
+print("d =", d)
+
+# --- Langkah 4: Fungsi enkripsi dan dekripsi ---
+def encrypt(msg, e, n):
+    return (msg ** e) % n
+
+def decrypt(cipher, d, n):
+    return (cipher ** d) % n
+
+# --- Contoh penggunaan ---
+plaintext = 88  # Gunakan angka < n
+ciphertext = encrypt(plaintext, e, n)
+decrypted = decrypt(ciphertext, d, n)
+
+print("\nPlaintext  :", plaintext)
+print("Ciphertext :", ciphertext)
+print("Hasil Dekripsi :", decrypted)
